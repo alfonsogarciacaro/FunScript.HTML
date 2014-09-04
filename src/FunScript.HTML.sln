@@ -7,7 +7,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunScript.HTML", "main\FunS
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunScript.HTML.Ractive", "ractive\FunScript.HTML.Ractive.fsproj", "{B370412B-3047-465A-8E6F-7944E623D52A}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunScript.HTML.Tests", "tests\FunScript.HTML.Tests.fsproj", "{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunScript.HTML.Samples", "samples\FunScript.HTML.Samples.fsproj", "{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

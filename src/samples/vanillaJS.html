@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body style="margin-top: 120px">
+    <svg style="position:fixed;top:0;left:0">
+        <rect width="100" height="100" style="fill:rgb(0, 255, 33)"></rect>
+    </svg>
+    <svg style="position:fixed;top:0;left:120px">
+        <rect width="100" height="100" style="fill:rgb(255, 0, 0)"></rect>
+    </svg>
+    <h1>Vanilla JS test 1: Use the cursor to move the squares</h1>
+    <p>The green square is moved using FRP (Observable module) and the red one is moved using Async workflows.</p>
+
+    <h1>Vanilla JS test 2: Async workflow</h1>
+    <p>Events will fire only once unless the workflow is called recursively.</p>
+    <button id="buttonAsync1">Click me!</button>
+    <button id="buttonAsync2">No, click me!</button>
+    <button id="buttonAsyncClear">Clear</button>
+    <div id="resultsAsync"></div>
+
+    <h1>Vanilla JS test 3: Functional Reactive Programming</h1>
+    <button id="buttonFRP1">Click me!</button>
+    <button id="buttonFRP2">No, click me!</button>
+    <button id="buttonFRPClear">Clear</button>
+    <div id="resultsFRP"></div>
+
+    <script src="vanillaJS.js"></script>
+</body>
+</html>

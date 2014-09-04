@@ -1,18 +1,17 @@
-[<AutoOpen>]
 [<ReflectedDefinition>]
-module FunScript.HTML.TypeExtensions 
+module FunScript.HTML.Extensions
 
 open System
 open FunScript.TypeScript
 open FunScript.HTML.Event
 
 type private ActionObserver<'T> (onNext : 'T -> unit, onError : exn -> unit, onCompleted : unit -> unit) =    
-   new(onNext : 'T -> unit) = ActionObserver<'T>(onNext, (fun e -> ()), (fun () -> ()))
+    new(onNext : 'T -> unit) = ActionObserver<'T>(onNext, (fun e -> ()), (fun () -> ()))
 
-   interface IObserver<'T> with
-     member this.OnNext v = onNext v
-     member this.OnError e = onError e
-     member this.OnCompleted() = onCompleted()
+    interface IObserver<'T> with
+        member this.OnNext v = onNext v
+        member this.OnError e = onError e
+        member this.OnCompleted() = onCompleted()
  
 type Async with
     static member AwaitObservable(ev1:IObservable<'a>) =

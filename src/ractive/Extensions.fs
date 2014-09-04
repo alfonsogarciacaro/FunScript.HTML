@@ -1,6 +1,5 @@
-﻿[<AutoOpen>]
-[<ReflectedDefinition>]
-module FunScript.HTML.TypeExtensions
+﻿[<ReflectedDefinition>]
+module FunScript.HTML.Extensions
 
 open FunScript.TypeScript
 open FunScript.HTML.Event
@@ -9,15 +8,22 @@ type Ractive with
     member x.onStream(eventName: string) =
         RactiveEventStream(x, eventName)
 
-type RactiveStatic with
-    member x.CreateWith<'T>(el: string, template: string, data: 'T, ?twoway: bool) =
-        let twoway = defaultArg twoway true
-        let options = createEmpty<RactiveNewOptions>()
-        options.template <- template
-        options.el <- el
-        options.data <- data
-        options.twoway <- twoway
-        x.Create(options)
+type RactiveEventPlugin with
+    static member makeCustomKeyEvent keyCode =
+        let plugin =
+            fun (node: HTMLElement) (fire: System.Func<RactiveEvent,obj>) ->
+                let keydownHandler =
+                    EventListenerDelegate( 
+                        fun (ev: Event) ->
+                            if (ev :?> KeyboardEvent).which = (float keyCode) then
+                                let f = createEmpty<RactiveEvent>() in f.node <- node; f.original <- ev
+                                fire.Invoke(f) |> ignore )
+
+                node.addEventListener("keydown", keydownHandler, false)
+                let teardown = System.Collections.Generic.Dictionary<_,_>()
+                teardown.Add("teardown", fun () -> node.removeEventListener("keydown", keydownHandler, false))
+                teardown
+        unbox<RactiveEventPlugin> (System.Func<_,_,_>(plugin))
 
 
 type Async with
@@ -56,21 +62,4 @@ type Async with
             observe3 := r.on(ev3, fun ev args -> (!observe1).cancel(); (!observe2).cancel(); (!observe3).cancel(); (!observe4).cancel(); cont(Choice3Of4(ev, args)))
             observe4 := r.on(ev4, fun ev args -> (!observe1).cancel(); (!observe2).cancel(); (!observe3).cancel(); (!observe4).cancel(); cont(Choice4Of4(ev, args)))
         )
-
-//type RactiveEventPlugins with
-//    static member makeCustomKeyEvent keyCode =
-//        let plugin =
-//            fun (node: HTMLElement) (fire: System.Func<RactiveEvent,obj>) ->
-//                let keydownHandler =
-//                    EventListenerDelegate( 
-//                        fun (ev: Event) ->
-//                            if (ev :?> KeyboardEvent).which = (float keyCode) then
-//                                let f = createEmpty<RactiveEvent>() in f.node <- node; f.original <- ev
-//                                fire.Invoke(f) |> ignore )
-//
-//                node.addEventListener("keydown", keydownHandler, false)
-//                let tear = createEmpty<RactiveTeardownDefinition>()
-//                tear.teardown <- fun () -> node.removeEventListener("keydown", keydownHandler, false)
-//                tear
-//        System.Func<_,_,_>(plugin)
 

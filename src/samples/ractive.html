@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <h1>Ractive test 1: Hello World</h1>
+    <div id='container1'></div>
+    <script id='template1' type='text/ractive'>
+        <p>Hello, {{name}}!</p>
+    </script>
+
+    <h1>Ractive test 2: Async workflow</h1>
+    <p>Events will fire only once unless the workflow is called recursively.</p>
+    <div id='container2'></div>
+    <script id='template2' type='text/ractive'>
+        <button on-click='activate2'>Activate!</button>
+        <button on-click='fire2'>Fire!</button>
+    </script>
+
+    <h1>Ractive test 3: Functional Reactive Programming</h1>
+    <div id='container3'></div>
+    <script id='template3' type='text/ractive'>
+        <button on-click='activate3:["Activating"]'>Activate!</button>
+        <button on-click='fire3:["Firing"]'>Fire!</button>
+    </script>
+
+    <h1>Ractive test 4: Colours</h1>
+    <p>Use the sliders to change the mix.</p>
+    <div id='container4'></div>
+    <script id='template4' type='text/ractive'>
+        <p>red:</p>
+        <div style='background-color: red; height: 10px; width: {{red*100}}%;'></div>
+
+        <p>green:</p>
+        <div style='background-color: green; height: 10px; width: {{green*100}}%;'></div>
+
+        <p>blue:</p>
+        <div style='background-color: blue; height: 10px; width: {{blue*100}}%;'></div>
+
+        <p><strong>result:</strong></p>
+        <div style='background-color:rgb({{Math.round(red   * 255)}},{{Math.round(green * 255)}},{{Math.round(blue  * 255)}}); height: 10px; '></div>
+        <br />
+        <input style='width: 30%' type="range" min="0" max="1" step="0.1" value="{{red}}" />
+        <input style='width: 30%' type="range" min="0" max="1" step="0.1" value="{{green}}" />
+        <input style='width: 30%' type="range" min="0" max="1" step="0.1" value="{{blue}}" />
+    </script>
+
+    <script src='http://cdn.ractivejs.org/latest/ractive.min.js'></script>
+    <script src="ractive.js"></script>
+</body>
+</html>

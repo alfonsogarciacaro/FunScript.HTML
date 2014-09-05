@@ -11,11 +11,11 @@
     </script>
 
     <h1>Ractive test 2: Async workflow</h1>
-    <p>Events will fire only once unless the workflow is called recursively.</p>
     <div id='container2'></div>
     <script id='template2' type='text/ractive'>
         <button on-click='activate2'>Activate!</button>
         <button on-click='fire2'>Fire!</button>
+        <button on-click='remove2'>Remove Listeners</button>
     </script>
 
     <h1>Ractive test 3: Functional Reactive Programming</h1>
@@ -23,6 +23,7 @@
     <script id='template3' type='text/ractive'>
         <button on-click='activate3:["Activating"]'>Activate!</button>
         <button on-click='fire3:["Firing"]'>Fire!</button>
+        <button on-click='remove3'>Remove Listeners</button>
     </script>
 
     <h1>Ractive test 4: Colours</h1>

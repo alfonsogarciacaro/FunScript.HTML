@@ -14,51 +14,34 @@ type private ActionObserver<'T> (onNext : 'T -> unit, onError : exn -> unit, onC
         member this.OnCompleted() = onCompleted()
  
 type Async with
-    static member AwaitObservable(ev1:IObservable<'a>) =
-        Async.FromContinuations(fun (cont, econt, ccont) ->
-            let remover1: IDisposable ref = ref null
-            let observer1 = ActionObserver(fun value -> (!remover1).Dispose(); cont(value))
-            remover1 := ev1.Subscribe(observer1)
-        )
+    static member AwaitObservable(ev1:IObservable<'a>) = async {
+        let! ct = Async.CancellationToken
+        return! Async.FromContinuations(fun (cont, econt, ccont) ->
+            let remover: IDisposable ref = ref null
+            let observer = ActionObserver(fun value ->
+                (!remover).Dispose()
+                ct.ThrowIfCancellationRequested()
+                cont(value))
+            remover := ev1.Subscribe(observer))
+    }
     
     static member AwaitObservable2(ev1:IObservable<'a>, ev2:IObservable<'b>) =
-        Async.FromContinuations(fun (cont, econt, ccont) ->
-            let remover1: IDisposable ref = ref null
-            let remover2: IDisposable ref = ref null
-            let observer1 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); cont(Choice1Of2(value)))
-            let observer2 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); cont(Choice2Of2(value)))
-            remover1 := ev1.Subscribe(observer1)
-            remover2 := ev2.Subscribe(observer2)
-        )
+        let ev1 = Observable.map Choice1Of2 ev1
+        let ev2 = Observable.map Choice2Of2 ev2
+        Async.AwaitObservable(Observable.merge ev1 ev2)
 
     static member AwaitObservable3(ev1:IObservable<'a>, ev2:IObservable<'b>, ev3:IObservable<'b>) =
-        Async.FromContinuations(fun (cont, econt, ccont) ->
-            let remover1: IDisposable ref = ref null
-            let remover2: IDisposable ref = ref null
-            let remover3: IDisposable ref = ref null
-            let observer1 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); cont(Choice1Of3(value)))
-            let observer2 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); cont(Choice2Of3(value)))
-            let observer3 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); cont(Choice3Of3(value)))
-            remover1 := ev1.Subscribe(observer1)
-            remover2 := ev2.Subscribe(observer2)
-            remover3 := ev3.Subscribe(observer3)
-        )
+        let ev1 = Observable.map Choice1Of3 ev1
+        let ev2 = Observable.map Choice2Of3 ev2
+        let ev3 = Observable.map Choice3Of3 ev3
+        Async.AwaitObservable(Observable.merge ev1 ev2 |> Observable.merge ev3)
 
     static member AwaitObservable4(ev1:IObservable<'a>, ev2:IObservable<'b>, ev3:IObservable<'b>, ev4:IObservable<'b>) =
-        Async.FromContinuations(fun (cont, econt, ccont) ->
-            let remover1: IDisposable ref = ref null
-            let remover2: IDisposable ref = ref null
-            let remover3: IDisposable ref = ref null
-            let remover4: IDisposable ref = ref null
-            let observer1 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); (!remover4).Dispose(); cont(Choice1Of4(value)))
-            let observer2 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); (!remover4).Dispose(); cont(Choice2Of4(value)))
-            let observer3 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); (!remover4).Dispose(); cont(Choice3Of4(value)))
-            let observer4 = ActionObserver(fun value -> (!remover1).Dispose(); (!remover2).Dispose(); (!remover3).Dispose(); (!remover4).Dispose(); cont(Choice4Of4(value)))
-            remover1 := ev1.Subscribe(observer1)
-            remover2 := ev2.Subscribe(observer2)
-            remover3 := ev3.Subscribe(observer3)
-            remover4 := ev4.Subscribe(observer4)
-        )
+        let ev1 = Observable.map Choice1Of4 ev1
+        let ev2 = Observable.map Choice2Of4 ev2
+        let ev3 = Observable.map Choice3Of4 ev3
+        let ev4 = Observable.map Choice4Of4 ev4
+        Async.AwaitObservable(Observable.merge ev1 ev2 |> Observable.merge ev3 |> Observable.merge ev4)
 
 
 type AbstractWorker with 

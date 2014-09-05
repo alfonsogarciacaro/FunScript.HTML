@@ -70,7 +70,7 @@ let test1Async() =
         let! choice = Async.AwaitObservable2(Globals.window.onmousemoveStream, Globals.window.onmouseupStream)
         match choice with
 
-        // If the mouse moves updates
+        // If the mouse moves update the position
         | Choice1Of2 ev ->
             let state = { state with position=(ev.x, ev.y) }
             set_element_position svg ((fst state.position) - (fst state.offset), (snd state.position) - (snd state.offset))
@@ -119,20 +119,19 @@ let test2() =
 
         let s = String.Format("Button {0} clicked {1} time{2}!", buttonid, state, if state>1 then "s" else "")
         appendResult doc results s
-        
-        //Uncomment the following line if you want the event to keep on firing
-        //return! waiter(state1, state2)
+        return! waiter(state1, state2) // Remain in the loop to keep listening for the event
     }
-    Async.StartImmediate(waiter(0, 0))
 
-// Same as the test above but using 'event streams'. Note that in this case, if we want to remove the listener,
-// we must use Observable.subscribe instead of Observable.add and dispose the returned observable
+    let cts = new System.Threading.CancellationTokenSource()
+    Async.StartImmediate(waiter(0, 0), cts.Token)
+    doc.getElementById("buttonAsyncRemove").onclick <- fun _ -> cts.Cancel(); null
+
+
+// Same as the test above but using 'event streams'
+// If we don't need to remove the listeners, we can just use add instead of subscribe
 let test3() =
     let doc = Globals.document
     let results = doc.getElementById("resultsFRP")
-
-    doc.getElementById("buttonFRPClear").onclickStream
-    |> Observable.add (fun ev -> results.innerHTML <- "")
 
     let stream1 =
         doc.getElementById("buttonFRP1").onclickStream
@@ -142,18 +141,21 @@ let test3() =
         doc.getElementById("buttonFRP2").onclickStream
         |> Observable.map (fun ev -> 2)
 
-    // In this case, it would probably be simpler not to merge the streams, but I'm just testing the capacity
-    Observable.merge stream1 stream2
-    |> Observable.map (fun id ->
-        match id with
-        | 1 -> id, 1, 0
-        | 2 -> id, 0, 1
-        | _ -> failwith "Unknown button")
-    |> Observable.scan (fun (_, st1, st2) (id, click1, click2) -> id, st1 + click1, st2 + click2) (0,0,0)
-    |> Observable.add (fun (id, clicks1, clicks2) ->
-        let clicks = match id with 1 -> clicks1 | 2 -> clicks2 | _ -> failwith "Unknown button"
-        let s = String.Format("Button {0} clicked {1} time{2}!", id, clicks, if clicks>1 then "s" else "")
-        appendResult doc results s)
+    let subscriber =
+        Observable.merge stream1 stream2
+        |> Observable.map (fun id ->
+            match id with
+            | 1 -> id, 1, 0
+            | 2 -> id, 0, 1
+            | _ -> failwith "Unknown button")
+        |> Observable.scan (fun (_, st1, st2) (id, click1, click2) -> id, st1 + click1, st2 + click2) (0,0,0)
+        |> Observable.subscribe (fun (id, clicks1, clicks2) ->
+            let clicks = match id with 1 -> clicks1 | 2 -> clicks2 | _ -> failwith "Unknown button"
+            let s = String.Format("Button {0} clicked {1} time{2}!", id, clicks, if clicks>1 then "s" else "")
+            appendResult doc results s)
+
+    doc.getElementById("buttonFRPClear").onclick <- fun _ -> results.innerHTML <- ""; null
+    doc.getElementById("buttonFRPRemove").onclick <- fun _ -> subscriber.Dispose(); null
 
 
 let main() =

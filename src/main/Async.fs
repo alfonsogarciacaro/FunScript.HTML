@@ -52,7 +52,7 @@ module AsyncExtensions =
                     req.Method, req.Url, req.Headers.Keys, req.Headers.Values, 
                     body, onReceived, onErrorReceived)
             )
-        member req.AsyncGetJSON() = async {
+        member req.AsyncGetJSON<'T>() = async {
             let! data = req.AsyncGetString()
-            return! unbox <| Globals.JSON.parse(data)
+            return unbox<'T>(Globals.JSON.parse data)
         }

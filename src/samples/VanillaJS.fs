@@ -4,7 +4,7 @@ module FunScript.HTML.Samples.VanillaJS
 open System
 open System.Collections.Generic
 open FunScript.TypeScript
-open FunScript.HTML.Extensions
+open FunScript.HTML
 
 // This literal here is OK, but see comment below at the beginning of test1FRP()
 let LEFT_CLICK = 1.
@@ -67,7 +67,7 @@ let test1Async() =
 
     let rec draggingLoop(state: PositionState): Async<unit> = async {
         // We wait for either mousemove or mouseup events and use pattern matching to get the actual event
-        let! choice = Async.AwaitObservable2(Globals.window.onmousemoveStream, Globals.window.onmouseupStream)
+        let! choice = Async.AwaitObservable(Globals.window.onmousemoveStream, Globals.window.onmouseupStream)
         match choice with
 
         // If the mouse moves update the position
@@ -111,7 +111,7 @@ let test2() =
         let button1 = doc.getElementById("buttonAsync1")
         let button2 = doc.getElementById("buttonAsync2")
 
-        let! choice = Async.AwaitObservable2(button1.onclickStream, button2.onclickStream)
+        let! choice = Async.AwaitObservable(button1.onclickStream, button2.onclickStream)
         let buttonid, state, state1, state2 =
             match choice with
             | Choice1Of2 _ -> 1, state1+1, state1+1, state2

@@ -54,7 +54,6 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Event.fs" />
     <Compile Include="Extensions.fs" />
   </ItemGroup>
   <PropertyGroup>

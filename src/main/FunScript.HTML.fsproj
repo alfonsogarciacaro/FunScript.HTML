@@ -51,8 +51,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Event.fs" />
-    <Compile Include="Extensions.fs" />
+    <Compile Include="Async.fs" />
+    <Compile Include="TypeScript.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

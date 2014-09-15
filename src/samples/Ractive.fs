@@ -3,7 +3,7 @@ module FunScript.HTML.Samples.Ractive
 
 open System.Collections.Generic
 open FunScript.TypeScript
-open FunScript.HTML.Extensions
+open FunScript.HTML
 
 // Utility function to make adding values to a dictionary more F#esque
 let add (key: _) (value: obj) (dic: Dictionary<_,_>) =
@@ -24,8 +24,10 @@ let test1() =
 let test2() =
     let data = createEmpty()
     let r = createRactive "#container2" "#template2" data
+
     let rec waiter(): Async<unit> = async {
-        let! choice = Async.AwaitObservable2(r.onStream("activate2"), r.onStream("fire2"))
+        let ev1, ev2 = r.onStream("activate2", "fire2")
+        let! choice = Async.AwaitObservable(ev1, ev2)
         match choice with
         | Choice1Of2 _ -> Globals.alert("activating")
         | Choice2Of2 _ -> Globals.alert("firing")

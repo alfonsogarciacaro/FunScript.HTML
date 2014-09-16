@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Async.fs" />
+    <Compile Include="Literals.fs" />
     <Compile Include="TypeScript.fs" />
   </ItemGroup>
   <PropertyGroup>

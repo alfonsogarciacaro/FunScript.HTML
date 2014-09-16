@@ -4,8 +4,14 @@ open System
 open FunScript.TypeScript
 
 [<AutoOpen>]
+module TypeScriptExtensions_1 =
+    type DOMStringMap with 
+            [<FunScript.JSEmitInline("({0}[{1}])"); CompiledName("Item")>]
+            member __.Item with get(i : string) : obj = failwith "never" and set (i : string) (v : obj) : unit = failwith "never"
+
+[<AutoOpen>]
 [<ReflectedDefinition>]
-module TypeScriptExtensions =
+module TypeScriptExtensions_2 =
     type HTMLEventStream<'T>(el: EventTarget, ev: string) =
         interface IObservable<'T> with
             member x.Subscribe observer =

@@ -7,7 +7,39 @@ open FunScript.TypeScript
 [<ReflectedDefinition>]
 module AsyncExtensions =
 
+    [<FunScript.JSEmitInline("window.setInterval({0}, {1})")>]
+    let private setInterval(handler:unit -> unit, milliseconds:float): int = failwith "never"
+
+    [<FunScript.JSEmitInline("window.clearInterval({0})")>]
+    let private clearInterval(id: int) = failwith "never"
+
+    [<FunScript.JSEmitInline("window.requestAnimationFrame({0})")>]
+    let private requestAnimationFrame(handler:float -> unit): int = failwith "never"
+
+    type ElapsedEventArgs() =
+        member val SignalTime = System.DateTime.Now
+
+    /// The timer will be disposed at the same time as the subscriber (ms: interval in milliseconds)
+    type TimerStream(ms) =
+        interface IObservable<ElapsedEventArgs> with
+            member x.Subscribe observer =
+                let handler = fun () -> observer.OnNext(ElapsedEventArgs())
+                let id = setInterval(handler, ms)
+                new FunScript.Core.Events.ActionDisposable(fun () ->
+                    clearInterval(id)) :> IDisposable
+
+    type System.Timers.Timer with
+        /// The timer will be disposed at the same time as the subscriber (ms: interval in milliseconds)
+        static member CreateStream(ms) = TimerStream(ms)
+
     type Async with
+        /// Use this if you want to have animations in async workflows that can be easily cancelled
+        static member AwaitAnimationFrame(): Async<float> =
+            unbox(FunScript.Core.Async.protectedCont <| fun k ->
+                requestAnimationFrame(fun ts ->
+                    k.Aux.CancellationToken.ThrowIfCancellationRequested()
+                    k.Cont ts) |> ignore)
+
         [<CompiledName("AwaitObservable1")>]
         static member AwaitObservable(w1: IObservable<'T>): Async<'T> =
             unbox(FunScript.Core.Async.protectedCont <| fun k ->
@@ -40,19 +72,22 @@ module AsyncExtensions =
             Async.AwaitObservable(Observable.merge ev1 ev2 |> Observable.merge ev3 |> Observable.merge ev4)
 
     type Net.WebRequest with
-        member req.AsyncGetString() =
+        member req.AsyncGetJSON<'T>() =
             let req: FunScript.Core.Web.WebRequest = unbox req
             Async.FromContinuations(fun (onSuccess, onError, _) ->
-                let onReceived(data : string) = onSuccess data
-                let onErrorReceived() = onError null
-                let body =
-                    if req.Method = "GET" then null
-                    else Text.Encoding.UTF8.GetString(req.GetRequestStream().Contents)
+                let onReceived(data) = onSuccess(unbox<'T>(Globals.JSON.parse data))
+                let onErrorReceived() = onError(null)
                 FunScript.Core.Web.sendRequest(
-                    req.Method, req.Url, req.Headers.Keys, req.Headers.Values, 
-                    body, onReceived, onErrorReceived)
+                    "GET", req.Url, req.Headers.Keys, req.Headers.Values, 
+                    null, onReceived, onErrorReceived)
             )
-        member req.AsyncGetJSON<'T>() = async {
-            let! data = req.AsyncGetString()
-            return unbox<'T>(Globals.JSON.parse data)
-        }
+        member req.AsyncPostJSON<'T>(data: 'T) =
+            let req: FunScript.Core.Web.WebRequest = unbox req
+            req.Headers.Add("Content-Type", "application/json")
+            Async.FromContinuations(fun (onSuccess, onError, _) ->
+                let onReceived(data) = onSuccess(unbox<'T>(Globals.JSON.parse data))
+                let onErrorReceived() = onError(null)
+                FunScript.Core.Web.sendRequest(
+                    "POST", req.Url, req.Headers.Keys, req.Headers.Values, 
+                    Globals.JSON.stringify(data), onReceived, onErrorReceived)
+            )

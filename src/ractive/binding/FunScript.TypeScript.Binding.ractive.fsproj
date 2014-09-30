@@ -5,13 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>b370412b-3047-465a-8e6f-7944e623d52a</ProjectGuid>
+    <ProjectGuid>19f97a02-8a31-4cd2-baba-a14371a49195</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FunScript.HTML.Ractive</RootNamespace>
-    <AssemblyName>FunScript.HTML.Ractive</AssemblyName>
+    <RootNamespace>FunScript.TypeScript.Bindings.ractive</RootNamespace>
+    <AssemblyName>FunScript.TypeScript.Binding.ractive</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>FunScript.HTML.Ractive</Name>
+    <Name>FunScript.TypeScript.Binding.ractive</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FunScript.HTML.Ractive.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FunScript.TypeScript.Bindings.ractive.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FunScript.HTML.Ractive.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FunScript.TypeScript.Bindings.ractive.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FunScript">
@@ -51,8 +51,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Binding.fs" />
-    <Compile Include="Extensions.fs" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="FunScript.TypeScript.Binding.ractive.dll.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

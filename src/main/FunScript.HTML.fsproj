@@ -51,9 +51,13 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async.fs" />
     <Compile Include="Literals.fs" />
+    <Compile Include="Async.fs" />
+    <Compile Include="Observable.fs" />
     <Compile Include="TypeScript.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="JavaScript.fs" />
+    <Compile Include="Components.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

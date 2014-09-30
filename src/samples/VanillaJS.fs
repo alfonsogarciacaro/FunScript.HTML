@@ -5,6 +5,7 @@ open System
 open System.Collections.Generic
 open FunScript.TypeScript
 open FunScript.HTML
+open Microsoft.FSharp.Control
 
 // This literal here is OK, but see comment below at the beginning of test1FRP()
 let LEFT_CLICK = 1.
@@ -164,7 +165,10 @@ let main() =
     test2()
     test3()
 
-
+    // Timer stream test
+    System.Timers.Timer.CreateStream(2000.)
+    |> Observable.take 5
+    |> Observable.add (fun e -> System.Console.WriteLine("{0:HH:mm:ss}", e.SignalTime))
 
 
 

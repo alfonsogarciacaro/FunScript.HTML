@@ -5,9 +5,13 @@ open FunScript.TypeScript
 
 [<AutoOpen>]
 module TypeScriptExtensions_1 =
+    type Window with 
+        [<FunScript.JSEmitInline("({0}[{1}])"); CompiledName("Item")>]
+        member __.Item with get(i : string) : string = failwith "never" and set (i : string) (v : obj) : unit = failwith "never"
+
     type DOMStringMap with 
-            [<FunScript.JSEmitInline("({0}[{1}])"); CompiledName("Item")>]
-            member __.Item with get(i : string) : obj = failwith "never" and set (i : string) (v : obj) : unit = failwith "never"
+        [<FunScript.JSEmitInline("({0}[{1}])"); CompiledName("Item")>]
+        member __.Item with get(i : string) : string = failwith "never" and set (i : string) (v : obj) : unit = failwith "never"
 
 [<AutoOpen>]
 [<ReflectedDefinition>]

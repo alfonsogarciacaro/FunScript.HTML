@@ -78,10 +78,10 @@ module RactiveExtensions =
             RactiveEventStream(x, eventName1), RactiveEventStream(x, eventName2), RactiveEventStream(x, eventName3), RactiveEventStream(x, eventName4)
 
     type RactiveStatic with
-        member x.CreateFast(elementId: string, templateId: string) =
+        member x.CreateFast(elementSelector: string, templateSelector: string) =
             let options = createEmpty<RactiveNewOptions>()
-            options.el <- elementId
-            options.template <- templateId
+            options.el <- elementSelector
+            options.template <- templateSelector
             Globals.Ractive.Create(options)            
 
         member x.makeCustomKeyEvent keyCode =

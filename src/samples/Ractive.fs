@@ -5,13 +5,13 @@ open System.Collections.Generic
 open FunScript.TypeScript
 open FunScript.HTML
 
-type FunnyImage = { display: bool; image: string; text: string }
+type FunnyImage = { image: string; text: string }
 
 let test1() =
     let images =
-        ResizeArray<_> [| {display=true; image="pipeline"; text="The deployment pipeline"}
-                          {display=true; image="rewrite"; text="What happens when I am allowed to rewrite code from scratch"}
-                          {display=true; image="mutation"; text="x=!x"} |]
+        ResizeArray<_> [| {image="pipeline"; text="The deployment pipeline"}
+                          {image="rewrite"; text="What happens when I am allowed to rewrite code from scratch"}
+                          {image="mutation"; text="x=!x"} |]
 
     let rec loop index (state: RactiveState<FunnyImage>): Async<unit> = async {
         let! ev = Async.AwaitObservable(state.ractive.onStream("changeImage"))

@@ -5,6 +5,26 @@ open System.Collections.Generic
 open FunScript.TypeScript
 open FunScript.HTML
 
+type FunnyImage = { display: bool; image: string; text: string }
+
+let test1() =
+    let images =
+        ResizeArray<_> [| {display=true; image="pipeline"; text="The deployment pipeline"}
+                          {display=true; image="rewrite"; text="What happens when I am allowed to rewrite code from scratch"}
+                          {display=true; image="mutation"; text="x=!x"} |]
+
+    let rec loop index (state: RactiveState<FunnyImage>): Async<unit> = async {
+        let! ev = Async.AwaitObservable(state.ractive.onStream("changeImage"))
+        let index = if index < images.Count - 1 then index + 1 else 0
+        let! state = RactiveState.mkAsync(state, images.[index], hasOutTransitions=true)
+        return! loop index state
+    }
+
+    let ractive = Globals.Ractive.CreateFast("#container1", "#template1")
+    RactiveState.init(ractive, images.[0])
+    |> loop 0
+    |> Async.StartImmediate
+
 // Utility function to make adding values to a dictionary more F#esque
 let add (key: _) (value: obj) (dic: Dictionary<_,_>) =
     dic.Add(key, unbox value)
@@ -16,11 +36,6 @@ let createRactive (el: string) (template: string) (data: obj) =
     options.el <- el
     options.data <- data
     Globals.Ractive.Create(options)
-
-let test1() =
-    let data = Dictionary<_,_>() |> add "name" "World"
-    createRactive "#container1" "#template1" data
-    |> ignore
 
 let test2() =
     let data = createEmpty()

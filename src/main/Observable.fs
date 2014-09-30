@@ -1,10 +1,10 @@
 ﻿namespace Microsoft.FSharp.Control
 
+[<assembly:AutoOpen("Microsoft.FSharp.Control")>]
+do()
+
 module Observable =
     open System
-
-    [<assembly:AutoOpen("Microsoft.FSharp.Control")>]
-    do()
 
     [<CompiledName("Take")>]
     let take (count: int) (w: IObservable<'T>): IObservable<'T> = failwith "never"
@@ -22,7 +22,7 @@ module Observable =
 namespace FunScript.HTML
 
 [<ReflectedDefinition>]
-module Observable =
+module ObservableExtensions =
     open FunScript.Core.Events
 
     type private TakeObservable<'T>(count: int, w: IObservable<'T>) =

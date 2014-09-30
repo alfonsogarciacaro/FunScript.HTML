@@ -5,7 +5,6 @@ open System
 open System.Collections.Generic
 open FunScript.TypeScript
 open FunScript.HTML
-open Microsoft.FSharp.Control
 
 // This literal here is OK, but see comment below at the beginning of test1FRP()
 let LEFT_CLICK = 1.

@@ -7,14 +7,9 @@ open Microsoft.FSharp.Quotations
 let path = Directory.GetCurrentDirectory()
 
 let compile (expr: Expr) (name: string) =
-    try
-        let code = FunScript.Compiler.Compiler.Compile(expr, noReturn=true, components=FunScript.HTML.Components.getHTMLComponents())
-
-        File.WriteAllText(Path.Combine(path, name + ".js"), code)
-        System.Diagnostics.Process.Start(Path.Combine(path, name + ".html")) |> ignore
-    with
-    | _ as ex -> printfn "%A" ex
-
+    let code = FunScript.Compiler.Compiler.Compile(expr, noReturn=true, components=FunScript.HTML.Components.getHTMLComponents())
+    File.WriteAllText(Path.Combine(path, name + ".js"), code)
+    System.Diagnostics.Process.Start(Path.Combine(path, name + ".html")) |> ignore
 
 compile <@@ FunScript.HTML.Samples.VanillaJS.main() @@> "vanillaJS"
 compile <@@ FunScript.HTML.Samples.Ractive.main() @@> "ractive"

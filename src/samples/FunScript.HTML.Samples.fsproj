@@ -49,6 +49,18 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <None Include="img\mutation.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="img\pipeline.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="img\rewrite.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ractive-transitions-fly.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="vanillaJS.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -60,11 +72,6 @@
     <Compile Include="Compiler.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ractive\FunScript.HTML.Ractive.fsproj">
-      <Name>FunScript.HTML.Ractive</Name>
-      <Project>{b370412b-3047-465a-8e6f-7944e623d52a}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <Reference Include="FunScript">
       <HintPath>..\..\lib\FunScript.dll</HintPath>
     </Reference>
@@ -81,9 +88,16 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\main\FunScript.HTML.fsproj">
       <Name>FunScript.HTML</Name>
       <Project>{e9e790b5-4cf7-4529-b66f-eadda82bd690}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\ractive\FunScript.HTML.Ractive.fsproj">
+      <Name>FunScript.HTML.Ractive</Name>
+      <Project>{b370412b-3047-465a-8e6f-7944e623d52a}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

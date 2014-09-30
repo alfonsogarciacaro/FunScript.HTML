@@ -3,6 +3,6 @@
 open FunScript.HTML
 
 let getHTMLComponents() =
-    Observable.getComponents()
+    ObservableExtensions.getComponents()
 
 

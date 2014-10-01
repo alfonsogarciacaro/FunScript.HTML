@@ -158,20 +158,40 @@ let test3() =
     doc.getElementById("buttonFRPRemove").onclick <- fun _ -> subscriber.Dispose(); null
 
 
+open System.Text.RegularExpressions
+let testRegex() =
+    let doc = Globals.document
+    let result = doc.getElementById("regex-result")
+    let input = doc.getElementById("regex-input") |> unbox<HTMLTextAreaElement>
+    let pattern = doc.getElementById("regex-pattern") |> unbox<HTMLTextAreaElement>
+    pattern.onkeyupStream
+    |> Observable.add (fun _ ->
+        result.innerHTML <- Regex.Replace(
+            input.value, pattern.value, "<mark>$&</mark>", RegexOptions.IgnoreCase))
+
+type Point = {x: float; y: float}
+             static member (-) (a: Point, b: Point) = {x=a.x-b.x; y=a.y-b.y}
+             member p.Magnitude with get() = sqrt <| (pown p.x 2) + (pown p.y 2)
+
 let main() =
     test1FRP()
     test1Async()
     test2()
     test3()
+    testRegex()
 
-    // Timer stream test
+    // Additional tests
+    Globals.document.onclickStream
+    |> Observable.filter (fun c -> c.clientX > Globals.window.innerWidth / 2.)
+    |> Observable.take 10
+    |> Observable.map (fun c -> {x=c.clientX; y=c.clientY})
+    |> Observable.pairwise
+    |> Observable.map (fun pair -> ((snd pair) - (fst pair)).Magnitude)
+    |> Observable.scan (fun (st: float) dist -> dist + st) 0.
+    |> Observable.add (fun dist ->
+        System.Console.WriteLine(sprintf "Accumulated distance: %.2f" dist))
+
     System.Timers.Timer.CreateStream(2000.)
     |> Observable.take 5
-    |> Observable.add (fun e -> System.Console.WriteLine("{0:HH:mm:ss}", e.SignalTime))
-
-
-
-
-
-
-
+    |> Observable.add (fun e ->
+        System.Console.WriteLine("{0:yyyy/MM/dd HH:mm:ss}", e.SignalTime))

@@ -173,12 +173,19 @@ type Point = {x: float; y: float}
              static member (-) (a: Point, b: Point) = {x=a.x-b.x; y=a.y-b.y}
              member p.Magnitude with get() = sqrt <| (pown p.x 2) + (pown p.y 2)
 
+
+open System.Drawing
+
 let main() =
     test1FRP()
     test1Async()
     test2()
     test3()
     testRegex()
+
+    use pen = new Pen(Color.Red, 3.F, DashStyle = Drawing2D.DashStyle.DashDot)
+    let g = Graphics.FromCanvas("canvas")
+    g.DrawRectangle(pen, 5.F, 5.F, 200.F, 100.F)
 
     // Additional tests
     Globals.document.onclickStream
@@ -190,7 +197,7 @@ let main() =
     |> Observable.scan (fun (st: float) dist -> dist + st) 0.
     |> Observable.add (fun dist ->
         System.Console.WriteLine(sprintf "Accumulated distance: %.2f" dist))
-
+//
     System.Timers.Timer.CreateStream(2000.)
     |> Observable.take 5
     |> Observable.add (fun e ->

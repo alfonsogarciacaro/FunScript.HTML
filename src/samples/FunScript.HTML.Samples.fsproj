@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>3e1d45fe-3ff0-43e7-a679-1c23e5ffab69</ProjectGuid>
+    <ProjectGuid>{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>FunScript.HTML.Tests</RootNamespace>
     <AssemblyName>FunScript.HTML.Tests</AssemblyName>
@@ -82,23 +81,22 @@
       <HintPath>..\..\lib\FunScript.TypeScript.Binding.lib.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\main\FunScript.HTML.fsproj">
-      <Name>FunScript.HTML</Name>
-      <Project>{e9e790b5-4cf7-4529-b66f-eadda82bd690}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ractive\FunScript.HTML.Ractive.fsproj">
       <Name>FunScript.HTML.Ractive</Name>
-      <Project>{b370412b-3047-465a-8e6f-7944e623d52a}</Project>
-      <Private>True</Private>
+      <Project>{B370412B-3047-465A-8E6F-7944E623D52A}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\main\FunScript.HTML.fsproj">
+      <Project>{E9E790B5-4CF7-4529-B66F-EADDA82BD690}</Project>
+      <Name>FunScript.HTML</Name>
     </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

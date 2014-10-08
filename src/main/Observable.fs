@@ -92,11 +92,3 @@ module ObservableExtensions =
     let skipWhile predicate (w: IObservable<'T>) =
         TakeWhileObservable(predicate, w) :> IObservable<'T>
 
-    open FunScript
-    let getComponents() =
-     [
-        ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.take @> <@ take @>
-        ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.skip @> <@ skip @>
-        ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.takeWhile @> <@ takeWhile @>
-        ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.skipWhile @> <@ skipWhile @>
-     ]

@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.22013.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunScript.HTML", "main\FunScript.HTML.fsproj", "{E9E790B5-4CF7-4529-B66F-EADDA82BD690}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunScript.HTML.Ractive", "ractive\FunScript.HTML.Ractive.fsproj", "{B370412B-3047-465A-8E6F-7944E623D52A}"
-EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunScript.HTML.Samples", "samples\FunScript.HTML.Samples.fsproj", "{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E1D45FE-3FF0-43E7-A679-1C23E5FFAB69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B370412B-3047-465A-8E6F-7944E623D52A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B370412B-3047-465A-8E6F-7944E623D52A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B370412B-3047-465A-8E6F-7944E623D52A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B370412B-3047-465A-8E6F-7944E623D52A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E9E790B5-4CF7-4529-B66F-EADDA82BD690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E9E790B5-4CF7-4529-B66F-EADDA82BD690}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9E790B5-4CF7-4529-B66F-EADDA82BD690}.Release|Any CPU.ActiveCfg = Release|Any CPU

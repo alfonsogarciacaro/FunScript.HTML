@@ -258,7 +258,7 @@ module Storage =
                     box(econt(exn request.error.name))
                 request.onupgradeneeded <- fun ev -> 
                     let db = unbox<IDBDatabase> request.result
-                    box(impl.Upgrade(db))
+                    box(impl.Upgrade(unbox db))
                 request.onsuccess <- fun _ ->
                     Async.StartImmediate(async {
                         let db = unbox<IDBDatabase> request.result

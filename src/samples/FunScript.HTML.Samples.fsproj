@@ -90,10 +90,6 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ractive\FunScript.HTML.Ractive.fsproj">
-      <Name>FunScript.HTML.Ractive</Name>
-      <Project>{B370412B-3047-465A-8E6F-7944E623D52A}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\main\FunScript.HTML.fsproj">
       <Project>{E9E790B5-4CF7-4529-B66F-EADDA82BD690}</Project>
       <Name>FunScript.HTML</Name>

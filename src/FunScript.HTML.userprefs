@@ -1,14 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="samples\VanillaJS.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="main\Components.fs">
     <Files>
-      <File FileName="JaMeDiet\Types.fs" Line="5" Column="5" />
-      <File FileName="main\Helpers.fs" Line="1" Column="1" />
-      <File FileName="main\JavaScript.fs" Line="1" Column="1" />
-      <File FileName="main\Async.fs" Line="1" Column="1" />
-      <File FileName="samples\VanillaJS.fs" Line="1" Column="1" />
-      <File FileName="main\Storage.fs" Line="1" Column="1" />
-      <File FileName="samples\Compiler.fs" Line="1" Column="1" />
+      <File FileName="main\Components.fs" Line="9" Column="9" />
+      <File FileName="main\Storage.fs" Line="52" Column="52" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

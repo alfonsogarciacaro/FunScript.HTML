@@ -1,9 +1,18 @@
 ﻿module FunScript.HTML.Components
 open FunScript
+open Microsoft.FSharp.Quotations
+
+let private toPropertyNameFromLambda =
+    CompilerComponent.create <| fun (|Split|) compiler returnStrategy ->
+        function
+        | Patterns.Quote(Patterns.Lambda(_,Patterns.PropertyGet(_, pi, _))) ->
+            compiler.Compile returnStrategy (Expr.Value(pi.Name))
+        | _ -> []
 
 let getHTMLComponents() =
      [
         [
+            toPropertyNameFromLambda
             ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.take @> <@ ObservableExtensions.take @>
             ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.skip @> <@ ObservableExtensions.skip @>
             ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.takeWhile @> <@ ObservableExtensions.takeWhile @>

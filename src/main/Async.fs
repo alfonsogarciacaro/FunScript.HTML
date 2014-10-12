@@ -3,8 +3,7 @@
 open System
 open FunScript.TypeScript
 
-[<AutoOpen>]
-[<ReflectedDefinition>]
+[<AutoOpen; ReflectedDefinition>]
 module AsyncExtensions =
 
     [<FunScript.JSEmitInline("window.setInterval({0}, {1})")>]

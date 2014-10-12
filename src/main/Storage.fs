@@ -26,6 +26,7 @@ module Storage =
         /// For every key with duplicate values, only the first record is yielded. 
         /// When the source is an object store or a unique index, this direction has the exact same behavior as Prev.
         | PrevUnique
+        static member Default with get() = Next
         member dir.toW3Convention() =
             match dir with
             | Next -> "next"
@@ -33,17 +34,17 @@ module Storage =
             | Prev -> "prev"
             | PrevUnique -> "prevunique"
 
-
     type DBStoreUpgrade<'T> =
-        member st.createIndex<'TIndex>(expr: Expr<'T->'TIndex>, unique: bool) =
+        /// Unique will default to false
+        member x.createIndex<'TIndex>(expr: Expr<'T->'TIndex>, ?unique: bool) =
             let indexName: string = unbox expr
+            let unique = defaultArg unique false
             let args = System.Collections.Generic.Dictionary<_,_>()
             args.Add("unique", unique)
-            ignore((unbox st: IDBObjectStore).createIndex(indexName, indexName, args))
+            ignore((unbox x: IDBObjectStore).createIndex(indexName, indexName, args))
 
-        member st.deleteIndex<'TIndex>(expr: Expr<'T->'TIndex>) =
-            (unbox st: IDBObjectStore).deleteIndex(unbox expr)
-
+        member x.deleteIndex<'TIndex>(expr: Expr<'T->'TIndex>) =
+            (unbox x: IDBObjectStore).deleteIndex(unbox expr)
 
     type DBUpgrade =
         member db.createStore<'T,'TKey>(keyMethod: DBKeyMethod<'T,'TKey>) =
@@ -52,220 +53,221 @@ module Storage =
             | KeyPath pathExpr -> args.Add("keyPath", box pathExpr)
             | AutoIncrement -> args.Add("autoIncrement", box true)
             let storeName = typeof<'T>.Name
-            unbox<DBStoreUpgrade<'T>>((unbox db: IDBDatabase).createObjectStore(storeName))
+            unbox<DBStoreUpgrade<'T>>((unbox db: IDBDatabase).createObjectStore(storeName, args))
 
         member db.deleteStore<'T>() =
             let storeName = typeof<'T>.Name
             (unbox db: IDBDatabase).deleteObjectStore(storeName)
 
-
     type DBImplementation =
         abstract member Version: uint32
         abstract member Upgrade: DBUpgrade -> unit
 
-
     type internal DBSeqCursor<'T> =
-        static member toSeq(cursor: obj) =
-            Seq.unfold (fun (c: IDBCursorWithValue) ->
-                if (unbox<bool> c) then
-                    let v = unbox<'T> c.value
-                    c._continue()
-                    Option.Some(v, c)
-                else
-                    Option.None) (unbox cursor)
-
+        static member openCursor(index: IDBIndex, keyCursor: bool, range: IDBKeyRange option, direction: DBCursorDirection option, step: uint32 option) =
+            let range = defaultArg range Unchecked.defaultof<IDBKeyRange>
+            let direction = (defaultArg direction DBCursorDirection.Default).toW3Convention()
+            let step = defaultArg step 1u
+            let request =
+                match keyCursor with
+                | false -> index.openCursor(range, direction)
+                | true -> index.openKeyCursor(range, direction)
+            let rec cursorSeq() = asyncSeq {
+                let! result = Async.FromContinuations(fun (cont, _, _) ->
+                    request.onsuccess <- fun _ ->
+                        request.onsuccess <- null
+                        if unbox<bool> request.result then
+                            let cursor = unbox<IDBCursorWithValue> request.result
+                            cont(Some(unbox<'T> cursor.value))
+                            cursor.advance(float step)
+                        else
+                            cont(None)
+                        null)
+                match result with
+                | None -> ()
+                | Some r ->
+                    yield r
+                    yield! cursorSeq()
+            }
+            cursorSeq()
 
     type DBIndexAsync<'T,'TIndex> =
-        member internal ts.original with get() = unbox<IDBIndex> ts
+        member internal x.original with get() = unbox<IDBIndex> x
 
-        member ts.countAllAsync() =
+        member x.countAllAsync() =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.count()
+                let request = x.original.count()
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<int> request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
-        member ts.countKeyAsync(indexKey: 'TIndex) =
+        member x.countKeyAsync(indexKey: 'TIndex) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.count(indexKey)
+                let request = x.original.count(indexKey)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<int> request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
-        member ts.countRangeAsync(indexKeyRange: IDBKeyRange) =
+        member x.countRangeAsync(indexKeyRange: IDBKeyRange) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.count(indexKeyRange)
+                let request = x.original.count(indexKeyRange)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<int> request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
-        member ts.getAsync(indexKey: 'TIndex) =
+        member x.getAsync(indexKey: 'TIndex) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.get(indexKey)
+                let request = x.original.get(indexKey)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<'T> request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
-        member ts.getFirstAsync(indexKeyRange: IDBKeyRange) =
+        member x.getFirstAsync(indexKeyRange: IDBKeyRange) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.get(indexKeyRange)
+                let request = x.original.get(indexKeyRange)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<'T> request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
         /// The return value is the object actual primary key.
-        member ts.getKeyAsync(indexKey: obj) =
+        member x.getKeyAsync(indexKey: obj) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.getKey(indexKey)
+                let request = x.original.getKey(indexKey)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(request.result))
             )
 
         /// The parameter should not target the object primary key, but the property used by the index.
         /// The return value is the object actual primary key.
-        member ts.getKeyFirstAsync(indexKeyRange: IDBKeyRange) =
+        member x.getKeyFirstAsync(indexKeyRange: IDBKeyRange) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.getKey(indexKeyRange)
+                let request = x.original.getKey(indexKeyRange)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(request.result))
             )
 
         /// If no range is passed, then the range includes all records.
         /// If no direction is passed, it will default to "next".
-        member ts.openCursorAsync(?range: IDBKeyRange, ?direction: DBCursorDirection) =
-            Async.FromContinuations(fun (cont, econt, _) ->
-                let direction =
-                    match direction with
-                    | Option.Some dir -> Option.Some(dir.toW3Convention())
-                    | Option.None -> Option.None
-                let request = ts.original.openCursor(?range=range, ?direction=direction)
-                request.onerror <- fun _ -> box(econt(exn request.error.name))
-                request.onsuccess <- fun _ -> box(cont(DBSeqCursor<'T>.toSeq request.result))
-            )
+        member x.openCursor(?range: IDBKeyRange, ?direction: DBCursorDirection, ?step: uint32) =
+            DBSeqCursor<'T>.openCursor(unbox x, keyCursor=false, range=range, direction=direction, step=step)
 
         /// If no range is passed, then the range includes all keys.
         /// If no direction is passed, it will default to "next".
-        member ts.openKeyCursorAsync(?range: IDBKeyRange, ?direction: DBCursorDirection) =
-            Async.FromContinuations(fun (cont, econt, _) ->
-                let direction =
-                    match direction with
-                    | Option.Some dir -> Option.Some(dir.toW3Convention())
-                    | Option.None -> Option.None
-                let request = ts.original.openKeyCursor(?range=range, ?direction=direction)
-                request.onerror <- fun _ -> box(econt(exn request.error.name))
-                request.onsuccess <- fun _ -> box(cont(DBSeqCursor<obj>.toSeq request.result))
-            )
+        member x.openKeyCursor(?range: IDBKeyRange, ?direction: DBCursorDirection, ?step: uint32) =
+            DBSeqCursor<obj>.openCursor(unbox x, keyCursor=true, range=range, direction=direction, step=step)
 
     type DBStore<'T> =
-        member internal ts.original with get() = unbox<IDBObjectStore> ts
+        member internal x.original with get() = unbox<IDBObjectStore> x
 
-        member ts.getAsync(key: obj) =
+        member x.getAsync(key: obj) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.get(key)
+                let request = x.original.get(key)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(unbox<'T> request.result))
             )
 
         /// If no range is passed, it will default to a key range that selects all the records in this object store.
         /// If no direction is passed, it will default to "next".
-        member ts.openCursorAsync(?range: IDBKeyRange, ?direction: DBCursorDirection) =
-            Async.FromContinuations(fun (cont, econt, _) ->
-                let range =
-                    match range with
-                    | Option.Some r -> Option.Some(box r)
-                    | Option.None -> Option.None
-                let direction =
-                    match direction with
-                    | Option.Some dir -> Option.Some(dir.toW3Convention())
-                    | Option.None -> Option.None
-                let request = ts.original.openCursor(?range=range, ?direction=direction)
-                request.onerror <- fun _ -> box(econt(exn request.error.name))
-                request.onsuccess <- fun _ -> box(cont(DBSeqCursor<'T>.toSeq request.result))
-            )
+        member x.openCursor(?range: IDBKeyRange, ?direction: DBCursorDirection, ?step: uint32) =
+            DBSeqCursor<'T>.openCursor(unbox x, keyCursor=false, range=range, direction=direction, step=step)
 
-        member ts.index(expr: Expr<'T->'TIndex>) =
-            unbox<DBIndexAsync<'T,'TIndex>>(ts.original.index(unbox expr))
+        member x.index(expr: Expr<'T->'TIndex>) =
+            unbox<DBIndexAsync<'T,'TIndex>>(x.original.index(unbox expr))
 
+        member x.indexUnsafe(expr: Expr) =
+            unbox<DBIndexAsync<'T,obj>>(x.original.index(unbox expr))
 
     type DBStoreRW<'T> =
         inherit DBStore<'T>
 
         /// Insert only method. The operation is asynchronous but request is being ignored.
-        member ts.add(item: 'T, ?key: obj) =
-            ignore(ts.original.add(item, ?key=key))
+        member x.add(item: 'T) =
+            ignore(x.original.add(item))
 
         /// Insert only method. It can be used in async workflows. The return value is key set for the stored record.
         /// Note the continuation is called when the operation is added to the queue, but you still need to wait for the transaction to complete.
-        member ts.addAsync(item: 'T, ?key: obj) =
+        member x.addAsync(item: 'T) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.add(item, ?key=key)
+                let request = x.original.add(item)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(request.result))
             )
 
         /// Delete the item specified by the key. The operation is asynchronous but request is being ignored.
-        member ts.delete(key: obj) =
-            ignore(ts.original.delete(key))
+        member x.delete(key: obj) =
+            ignore(x.original.delete(key))
 
         /// Delete the item specified by the key. It can be used in async workflows.
         /// Note the continuation is called when the operation is added to the queue, but you still need to wait for the transaction to complete.
-        member ts.deleteAsync(key: obj) =
+        member x.deleteAsync(key: obj) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.delete(key)
+                let request = x.original.delete(key)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont())
             )
 
         /// Delete all items in the store. The operation is asynchronous but request is being ignored.
-        member ts.clear() =
-            ignore(ts.original.clear())
+        member x.clear() =
+            ignore(x.original.clear())
         
         /// Delete all items in the store. It can be used in async workflows.
         /// Note the continuation is called when the operation is added to the queue, but you still need to wait for the transaction to complete.
-        member ts.clearAsync() =
+        member x.clearAsync() =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.clear()
+                let request = x.original.clear()
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont())
             )
 
          /// Update or Insert method. The operation is asynchronous but request is being ignored.
-        member ts.put(item: 'T, ?key: obj) =
-            ignore(ts.original.put(item, ?key=key))
+        member x.put(item: 'T) =
+            ignore(x.original.put(item))
 
         /// Update or insert method. It can be used in async workflows. The return value is key set for the stored record.
         /// Note the continuation is called when the operation is added to the queue, but you still need to wait for the transaction to complete.
-        member ts.putAsync(item: 'T, ?key: obj) =
+        member x.putAsync(item: 'T) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let request = ts.original.put(item, ?key=key)
+                let request = x.original.put(item)
                 request.onerror <- fun _ -> box(econt(exn request.error.name))
                 request.onsuccess <- fun _ -> box(cont(request.result))
             )
 
-
     type IndexedDB<'T when 'T :> DBImplementation and 'T : (new: unit->'T)>() =
+        member x.deleteDatabaseAsync() =
+            Async.FromContinuations(fun (cont, econt, _) ->
+                let name = typeof<'T>.Name
+                let request = Globals.indexedDB.deleteDatabase(name)
+                request.onerror <- fun _ -> box(econt(exn request.error.name))
+                request.onsuccess <- fun _ -> box(cont())
+            )
         member private x.useAsync (mkTransaction: IDBDatabase->IDBTransaction) (execTransaction: IDBTransaction->Async<'Result>) =
             Async.FromContinuations(fun (cont, econt, _) ->
-                let impl = new 'T()
+                let impl = new 'T() :> DBImplementation
                 let name = typeof<'T>.Name
                 let request = Globals.indexedDB._open(name, float impl.Version)
                 request.onerror <- fun _ -> 
                     box(econt(exn request.error.name))
-                request.onupgradeneeded <- fun ev -> 
-                    let db = unbox<IDBDatabase> request.result
-                    box(impl.Upgrade(unbox db))
+                request.onupgradeneeded <- fun ev ->
+                    box(try
+                            let db = unbox<IDBDatabase> request.result
+                            impl.Upgrade(unbox db)
+                        with
+                            | e -> econt(e))
                 request.onsuccess <- fun _ ->
                     Async.StartImmediate(async {
-                        let db = unbox<IDBDatabase> request.result
-                        let trans = mkTransaction db
-                        let! res = execTransaction trans
-                        trans.oncomplete <- fun _ -> db.close(); box(cont(res))
-                        trans.onerror <- fun _ -> db.close(); box(econt(exn trans.error.name))
+                        try
+                            let db = unbox<IDBDatabase> request.result
+                            let trans = mkTransaction db
+                            let! res = execTransaction trans
+                            trans.oncomplete <- fun _ -> db.close(); box(cont(res))
+                            trans.onerror <- fun _ -> db.close(); box(econt(exn trans.error.name))
+                        with
+                        | e -> econt(e)
                     })
                     null
             )
@@ -323,7 +325,7 @@ module Storage =
             x.useAsync mkTransaction execTransaction
 
         [<CompiledName("UseStoreReadWrite1")>]
-        member x.useStoreRW(transaction: DBStoreRW<'S1>->Async<'Result>) =
+        member x.useStoreRW<'S1,'Result>(transaction: DBStoreRW<'S1>->Async<'Result>) =
             let storeName1 = typeof<'S1>.Name
             let mkTransaction = fun (db: IDBDatabase) ->
                 db.transaction(storeName1, "readwrite")
@@ -334,7 +336,7 @@ module Storage =
             x.useAsync mkTransaction execTransaction
 
         [<CompiledName("UseStoreReadWrite2")>]
-        member x.useStoreRW(transaction: DBStoreRW<'S1>->DBStoreRW<'S2>->Async<'Result>) =
+        member x.useStoreRW<'S1,'S2,'Result>(transaction: DBStoreRW<'S1>->DBStoreRW<'S2>->Async<'Result>) =
             let storeName1 = typeof<'S1>.Name
             let storeName2 = typeof<'S2>.Name
             let mkTransaction = fun (db: IDBDatabase) ->

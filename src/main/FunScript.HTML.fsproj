@@ -63,6 +63,7 @@
     <Compile Include="Components.fs" />
     <Compile Include="Ractive\Binding.fs" />
     <Compile Include="Ractive\Extensions.fs" />
+    <Compile Include="Pointer.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

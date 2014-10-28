@@ -18,8 +18,8 @@ let getHTMLComponents() =
             ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.takeWhile @> <@ ObservableExtensions.takeWhile @>
             ExpressionReplacer.createUnsafe <@ Microsoft.FSharp.Control.Observable.skipWhile @> <@ ObservableExtensions.skipWhile @>
 
-            ExpressionReplacer.createUnsafe <@ fun (c: System.Drawing.Color) -> new System.Drawing.Pen(c) @> <@ Drawing.Pen.FromColor @> 
-            ExpressionReplacer.createUnsafe <@ fun (c: System.Drawing.Color, w) -> new System.Drawing.Pen(c, w) @> <@ Drawing.Pen.FromColorAndWith @> 
+//            ExpressionReplacer.createUnsafe <@ fun (c: System.Drawing.Color) -> new System.Drawing.Pen(c) @> <@ Drawing.Pen.FromColor @> 
+//            ExpressionReplacer.createUnsafe <@ fun (c: System.Drawing.Color, w) -> new System.Drawing.Pen(c, w) @> <@ Drawing.Pen.FromColorAndWith @> 
         ]
 
         ExpressionReplacer.createTypeMethodMappings

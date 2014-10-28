@@ -13,9 +13,13 @@ module TypeScriptExtensions_1 =
         [<FunScript.JSEmitInline("({0}[{1}])"); CompiledName("Item")>]
         member __.Item with get(i : string) : string = failwith "never" and set (i : string) (v : obj) : unit = failwith "never"
 
-[<AutoOpen>]
-[<ReflectedDefinition>]
+[<AutoOpen; ReflectedDefinition>]
 module TypeScriptExtensions_2 =
+    type System.Drawing.Graphics with
+        static member FromCanvas(canvasId: string) =
+            let canvas = unbox<HTMLCanvasElement>(Globals.document.getElementById(canvasId))
+            unbox<System.Drawing.Graphics>(FunScript.HTML.Drawing.Graphics(canvas))
+
     type HTMLEventStream<'T>(el: EventTarget, ev: string) =
         interface IObservable<'T> with
             member x.Subscribe observer =

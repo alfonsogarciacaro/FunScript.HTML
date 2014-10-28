@@ -31,6 +31,37 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\FunScript.HTML.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" />
+  <ItemGroup>
+    <Compile Include="Literals.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="JavaScript.fs" />
+    <Compile Include="Async.fs" />
+    <Compile Include="AsyncSeq.fs" />
+    <Compile Include="Observable.fs" />
+    <Compile Include="Drawing.fs" />
+    <Compile Include="TypeScript.fs" />
+    <Compile Include="Storage.fs" />
+    <Compile Include="Pointer.fs" />
+    <Compile Include="Components.fs" />
+    <Compile Include="Ractive\Binding.fs" />
+    <Compile Include="Ractive\Extensions.fs" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="FunScript">
       <HintPath>..\..\lib\FunScript.dll</HintPath>
@@ -50,37 +81,6 @@
       <HintPath>..\..\lib\FunScript.TypeScript.Binding.lib.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Literals.fs" />
-    <Compile Include="Async.fs" />
-    <Compile Include="AsyncSeq.fs" />
-    <Compile Include="Observable.fs" />
-    <Compile Include="TypeScript.fs" />
-    <Compile Include="Helpers.fs" />
-    <Compile Include="JavaScript.fs" />
-    <Compile Include="Drawing.fs" />
-    <Compile Include="Storage.fs" />
-    <Compile Include="Components.fs" />
-    <Compile Include="Ractive\Binding.fs" />
-    <Compile Include="Ractive\Extensions.fs" />
-    <Compile Include="Pointer.fs" />
-  </ItemGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Import Project="$(FSharpTargetsPath)" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -88,7 +88,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Ractive\" />
-  </ItemGroup>
 </Project>

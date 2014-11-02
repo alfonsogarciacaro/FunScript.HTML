@@ -90,3 +90,22 @@ module AsyncExtensions =
                     "POST", req.Url, req.Headers.Keys, req.Headers.Values, 
                     Globals.JSON.stringify(data), onReceived, onErrorReceived)
             )
+        member req.AsyncGetString() =
+            let req: FunScript.Core.Web.WebRequest = unbox req
+            Async.FromContinuations(fun (onSuccess, onError, _) ->
+                let onReceived(data) = onSuccess(data)
+                let onErrorReceived() = onError(null)
+                FunScript.Core.Web.sendRequest(
+                    "GET", req.Url, req.Headers.Keys, req.Headers.Values, 
+                    null, onReceived, onErrorReceived)
+            )
+        member req.AsyncPostString(data: string) =
+            let req: FunScript.Core.Web.WebRequest = unbox req
+            req.Headers.Add("Content-Type", "application/json")
+            Async.FromContinuations(fun (onSuccess, onError, _) ->
+                let onReceived(data) = onSuccess(data)
+                let onErrorReceived() = onError(null)
+                FunScript.Core.Web.sendRequest(
+                    "POST", req.Url, req.Headers.Keys, req.Headers.Values, 
+                    data, onReceived, onErrorReceived)
+            )

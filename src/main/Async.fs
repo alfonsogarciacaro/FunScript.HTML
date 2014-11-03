@@ -73,6 +73,7 @@ module AsyncExtensions =
     type Net.WebRequest with
         member req.AsyncGetJSON<'T>() =
             let req: FunScript.Core.Web.WebRequest = unbox req
+            req.Headers.Add("Accept", "application/json")
             Async.FromContinuations(fun (onSuccess, onError, _) ->
                 let onReceived(data) = onSuccess(unbox<'T>(Globals.JSON.parse data))
                 let onErrorReceived() = onError(null)
@@ -82,6 +83,7 @@ module AsyncExtensions =
             )
         member req.AsyncPostJSON<'T>(data: 'T) =
             let req: FunScript.Core.Web.WebRequest = unbox req
+            req.Headers.Add("Accept", "application/json")
             req.Headers.Add("Content-Type", "application/json")
             Async.FromContinuations(fun (onSuccess, onError, _) ->
                 let onReceived(data) = onSuccess(unbox<'T>(Globals.JSON.parse data))
@@ -89,23 +91,4 @@ module AsyncExtensions =
                 FunScript.Core.Web.sendRequest(
                     "POST", req.Url, req.Headers.Keys, req.Headers.Values, 
                     Globals.JSON.stringify(data), onReceived, onErrorReceived)
-            )
-        member req.AsyncGetString() =
-            let req: FunScript.Core.Web.WebRequest = unbox req
-            Async.FromContinuations(fun (onSuccess, onError, _) ->
-                let onReceived(data) = onSuccess(data)
-                let onErrorReceived() = onError(null)
-                FunScript.Core.Web.sendRequest(
-                    "GET", req.Url, req.Headers.Keys, req.Headers.Values, 
-                    null, onReceived, onErrorReceived)
-            )
-        member req.AsyncPostString(data: string) =
-            let req: FunScript.Core.Web.WebRequest = unbox req
-            req.Headers.Add("Content-Type", "application/json")
-            Async.FromContinuations(fun (onSuccess, onError, _) ->
-                let onReceived(data) = onSuccess(data)
-                let onErrorReceived() = onError(null)
-                FunScript.Core.Web.sendRequest(
-                    "POST", req.Url, req.Headers.Keys, req.Headers.Values, 
-                    data, onReceived, onErrorReceived)
             )
